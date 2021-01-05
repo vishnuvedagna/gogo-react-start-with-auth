@@ -9,9 +9,9 @@ import {
 import { IntlProvider } from 'react-intl';
 import './helpers/Firebase';
 import AppLocale from './lang';
-import ColorSwitcher from './components/common/ColorSwitcher';
+//import ColorSwitcher from './components/common/ColorSwitcher';
 import { NotificationContainer } from './components/common/react-notifications';
-import { isMultiColorActive, adminRoot } from './constants/defaultValues';
+import { /*isMultiColorActive,*/ adminRoot } from './constants/defaultValues';
 import { getDirection } from './helpers/Utils';
 import { ProtectedRoute, UserRole } from './helpers/authHelper';
 
@@ -57,7 +57,7 @@ class App extends React.Component {
         >
           <>
             <NotificationContainer />
-            {isMultiColorActive && <ColorSwitcher />}
+            {/* {isMultiColorActive && <ColorSwitcher />} */}
             <Suspense fallback={<div className="loading" />}>
               <Router>
                 <Switch>

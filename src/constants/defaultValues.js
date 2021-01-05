@@ -1,4 +1,5 @@
-import { UserRole } from "../helpers/authHelper";
+// eslint-disable-next-line import/no-cycle
+import { UserRole } from '../helpers/authHelper';
 
 /*
 Menu Types:
@@ -34,12 +35,11 @@ export const currentUser = {
   title: 'Sarah Kortney',
   img: '/assets/img/profiles/l-1.jpg',
   date: 'Last seen today 15:24',
-  role: UserRole.Admin
-}
-
+  role: UserRole.Admin,
+};
 
 export const themeColorStorageKey = '__theme_selected_color';
-export const isMultiColorActive = true;
+export const isMultiColorActive = false;
 export const defaultColor = 'light.purplemonster';
 export const isDarkSwitchActive = true;
 export const defaultDirection = 'ltr';

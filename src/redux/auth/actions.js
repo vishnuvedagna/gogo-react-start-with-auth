@@ -1,3 +1,5 @@
+import { adminRoot, currentUser } from '../../constants/defaultValues';
+import { removeCurrentUser, setCurrentUser } from '../../helpers/Utils';
 import {
   LOGIN_USER,
   LOGIN_USER_SUCCESS,
@@ -14,18 +16,47 @@ import {
   RESET_PASSWORD_ERROR,
 } from '../actions';
 
-export const loginUser = (user, history) => ({
-  type: LOGIN_USER,
-  payload: { user, history },
-});
-export const loginUserSuccess = (user) => ({
-  type: LOGIN_USER_SUCCESS,
-  payload: user,
-});
-export const loginUserError = (message) => ({
-  type: LOGIN_USER_ERROR,
-  payload: { message },
-});
+export const loginUser = (user, history) => async (dispatch) => {
+  if (user.email === 'demo@gogo.com' && user.password === 'gogo123') {
+    dispatch({
+      type: LOGIN_USER,
+      payload: { user, history },
+    });
+    const item = { uid: currentUser.id, ...currentUser };
+    await setCurrentUser(item);
+    history.push(adminRoot);
+  } else {
+    const message = 'err.response.data';
+    dispatch({
+      type: LOGIN_USER_ERROR,
+      payload: { message },
+    });
+  }
+  // try {
+  //   // const response = await api.post(`/login`, body, config);
+  //   dispatch({
+  //     type: LOGIN_USER,
+  //     payload: { user, history },
+  //   });
+  //   history.push(adminRoot);
+  //   // dispatch(loadUser());
+  // } catch (err) {
+  //   const message = err.response.data;
+  //   dispatch({
+  //     type: LOGIN_USER_ERROR,
+  //     payload: { message },
+  //   });
+  // }
+};
+
+// export const loginUserSuccess = (user) => ({
+//   type: LOGIN_USER_SUCCESS,
+//   payload: user,
+// });
+// export const loginUserError = (message) => ({
+//   type: LOGIN_USER_ERROR,
+//   payload: { message },
+// });
 
 export const forgotPassword = (forgotUserMail, history) => ({
   type: FORGOT_PASSWORD,
@@ -66,7 +97,11 @@ export const registerUserError = (message) => ({
   payload: { message },
 });
 
-export const logoutUser = (history) => ({
-  type: LOGOUT_USER,
-  payload: { history },
-});
+export const logoutUser = (history) => async (dispatch) => {
+  dispatch({
+    type: LOGOUT_USER,
+    payload: { history },
+  });
+  await removeCurrentUser();
+  history.push('/');
+};

@@ -1,14 +1,8 @@
-import React from 'react';
-import { useFormik } from 'formik';
+import React, { Component } from 'react';
 import {
   Row,
   Card,
   CardTitle,
-  FormGroup,
-  Label,
-  Input,
-  Button,
-  Col,
 } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -17,229 +11,153 @@ import { registerUser } from '../../redux/actions';
 import IntlMessages from '../../helpers/IntlMessages';
 import { Colxx } from '../../components/common/CustomBootstrap';
 import { adminRoot } from '../../constants/defaultValues';
+import UserDetailsForm from './UserDetailsForm';
+import ProviderDetailsForm from './ProviderDetailsForm';
+import AlertProviderForm from './AlertProviderForm';
+import AlertSubscriberForm from './AlertSubscriberForm';
+import ConfirmPage from './ConfirmPage';
+import Success from '../success';
 
-const validate = (values) => {
-  const errors = {};
-  if (!values.firstName) {
-    errors.firstName = 'Required';
-  } else if (values.firstName.length > 15) {
-    errors.firstName = 'Must be 15 characters or less';
-  }
+class Register extends Component {
+  state = {
+    step: 1,
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword:'',
+    userType: '',
+    notifEmail: false,
+    notifPhone: false,
+    platform:'discord',
+    description:'',
+  };
 
-  if (!values.lastName) {
-    errors.lastName = 'Required';
-  } else if (values.lastName.length > 20) {
-    errors.lastName = 'Must be 20 characters or less';
-  }
+  // proceed to next step
+  nextStep = () => {
+    const { step } = this.state;
+    this.setState({
+      step: step + 1,
+    });
+  };
 
-  if (!values.email) {
-    errors.email = 'Required';
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = 'Invalid email address';
-  }
+  // back to prev step
+  prevStep = () => {
+    const { step } = this.state;
+    this.setState({
+      step: step - 1,
+    });
+  };
 
-  if (!values.password) {
-    errors.password = 'Required';
-  } else if (values.password !== values.confirmPassword) {
-    errors.password = 'Does not match';
-  }
-  if (!values.confirmPassword) {
-    errors.confirmPassword = 'Required';
-  } else if (values.confirmPassword !== values.password) {
-    errors.password = 'Does not match';
-  }
-  if (!values.acceptedTerms) {
-    errors.acceptedTerms = 'Required';
-  }
-  return errors;
-};
+  handleChange = (event) => {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+    this.setState({
+      [name]: value
+    });
+  };
 
-const Register = ({ history }) => {
-  const formik = useFormik({
-    initialValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      acceptedTerms: false,
-    },
-    validate,
-    // eslint-disable-next-line no-shadow
-    onSubmit: (values) => {
-      // eslint-disable-next-line no-alert
-      alert(JSON.stringify(values, null, 2));
-      if (values.email !== '' && values.password !== '') {
-        history.push(adminRoot);
+  render() {
+    const {
+      step,
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      confirmPassword,
+      userType,
+      notifEmail,
+      notifPhone,
+      platform,
+      description,
+    } = this.state;
+    const values = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      confirmPassword,
+      notifEmail,
+      notifPhone,
+      userType,
+      platform,
+      description,
+    };
+    const renderForm = () => {
+      switch (step) {
+        case 1:
+          return (
+            <UserDetailsForm
+              nextStep={this.nextStep}
+              values={values}
+              handleChange={this.handleChange}
+            />
+          );
+        case 2:
+          return (
+            <ProviderDetailsForm
+              nextStep={this.nextStep}
+              prevStep={this.prevStep}
+              values={values}
+              handleChange={this.handleChange}
+            />
+          );
+        case 3:
+          if (userType === 'provider') {
+            return (
+              <AlertProviderForm
+                nextStep={this.nextStep}
+                prevStep={this.prevStep}
+                values={values}
+                handleChange={this.handleChange}
+              />
+            );
+          }
+          if (userType === 'subscriber') {
+            return (
+              <AlertSubscriberForm
+                nextStep={this.nextStep}
+                prevStep={this.prevStep}
+                values={values}
+                handleChange={this.handleChange}
+              />
+            );
+          }
+          break;
+        case 4:
+          return (
+            <ConfirmPage
+              nextStep={this.nextStep}
+              prevStep={this.prevStep}
+              values={values}
+            />
+          );
+        case 5:
+          return <Success />;
+        default:
+          break;
       }
-    },
-  });
-
-  return (
-    <Row className="h-100">
-      <Colxx xxs="12" md="6" className="mx-auto my-auto">
-        <Card className="auth-card">
-          {/* <div className="position-relative image-side ">
-            <p className="text-white h2">MAGIC IS IN THE DETAILS</p>
-            <p className="white mb-0">
-              Please use this form to register. <br />
-              If you are a member, please{' '}
-              <NavLink to="/user/login" className="white">
-                login
+    };
+    return (
+      <Row className="h-100">
+        <Colxx xxs="12" md="6" className="mx-auto my-auto">
+          <Card className="auth-card">
+            <div className="form-side">
+              <NavLink to="/" className="white">
+                <span className="logo-single" />
               </NavLink>
-              .
-            </p>
-          </div> */}
-          <div className="form-side">
-            <NavLink to="/" className="white">
-              <span className="logo-single" />
-            </NavLink>
-            <CardTitle className="mb-4">
-              <IntlMessages id="user.register" />
-            </CardTitle>
-            <form onSubmit={formik.handleSubmit}>
-              <Row form>
-                <Col md={6}>
-                  <FormGroup className="form-group has-float-label  mb-4">
-                    <Label htmlFor="firstName">
-                      <IntlMessages id="First Name" />
-                    </Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      value={formik.values.firstName}
-                    />
-                    {formik.touched.firstName && formik.errors.firstName ? (
-                      <div className="invalid-feedback d-block">
-                        {formik.errors.firstName}
-                      </div>
-                    ) : null}
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="form-group has-float-label  mb-4">
-                    <Label htmlFor="lastName">
-                      <IntlMessages id="Last Name" />
-                    </Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      type="text"
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      value={formik.values.lastName}
-                    />
-                    {formik.touched.lastName && formik.errors.lastName ? (
-                      <div className="invalid-feedback d-block">
-                        {formik.errors.lastName}
-                      </div>
-                    ) : null}
-                  </FormGroup>
-                </Col>
-              </Row>
-              <FormGroup className="form-group has-float-label  mb-4">
-                <Label htmlFor="email">
-                  <IntlMessages id="user.email" />
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.email}
-                />
-                {formik.touched.email && formik.errors.email ? (
-                  <div className="invalid-feedback d-block">
-                    {formik.errors.email}
-                  </div>
-                ) : null}
-              </FormGroup>
-              <Row form>
-                <Col md={6}>
-                  <FormGroup className="form-group has-float-label  mb-4">
-                    <Label htmlFor="password">
-                      <IntlMessages id="user.password" />
-                    </Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      value={formik.values.password}
-                    />
-                    {formik.touched.password && formik.errors.password ? (
-                      <div className="invalid-feedback d-block">
-                        {formik.errors.password}
-                      </div>
-                    ) : null}
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="form-group has-float-label  mb-4">
-                    <Label htmlFor="confirmPassword">
-                      <IntlMessages id="Confirm Password" />
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      value={formik.values.confirmPassword}
-                    />
-                    {formik.touched.confirmPassword &&
-                    formik.errors.confirmPassword ? (
-                      <div className="invalid-feedback d-block">
-                        {formik.errors.confirmPassword}
-                      </div>
-                    ) : null}
-                  </FormGroup>
-                </Col>
-              </Row>
-              <FormGroup check inline className="form-group mb-4">
-                <Label check>
-                  <Input
-                    type="checkbox"
-                    name="acceptedTerms"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.confirmPassword}
-                  />
-                  {formik.touched.acceptedTerms &&
-                  formik.errors.acceptedTerms ? (
-                    <div className="invalid-feedback d-block">
-                      {formik.errors.acceptedTerms}
-                    </div>
-                  ) : null}{' '}
-                  I accept the terms and conditions
-                </Label>
-              </FormGroup>
-              <div className="d-flex justify-content-center align-items-center">
-                <Button color="primary" className="btn-shadow" size="lg">
-                  <IntlMessages id="user.register-button" />
-                </Button>
-              </div>
-              <div className="d-flex justify-content-center align-items-center p-2">
-                <p className="mb-0">
-                  Have an Account?{' '}
-                  <NavLink to="/user/login">
-                    <IntlMessages id="login" />
-                  </NavLink>
-                  .
-                </p>
-              </div>
-            </form>
-          </div>
-        </Card>
-      </Colxx>
-    </Row>
-  );
-};
+              {renderForm()}
+            </div>
+          </Card>
+        </Colxx>
+      </Row>
+    );
+  }
+}
 const mapStateToProps = () => {};
 
 export default connect(mapStateToProps, {

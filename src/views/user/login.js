@@ -110,6 +110,7 @@ const Login = ({ history, loading, error, loginUserAction }) => {
                   </FormGroup>
                   <div className="d-flex justify-content-center align-items-center">
                     <Button
+                    type="submit"
                       color="primary"
                       className={`btn-shadow btn-multiple-state ${
                         loading ? 'show-spinner' : ''

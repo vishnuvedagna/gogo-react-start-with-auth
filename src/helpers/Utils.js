@@ -159,3 +159,7 @@ export const setCurrentUser = (user) => {
     console.log(">>>>: src/helpers/Utils.js : setCurrentUser -> error", error)
   }
 };
+
+export const removeCurrentUser = () => {
+  localStorage.removeItem('gogo_current_user');
+};
